@@ -4,7 +4,7 @@ import { expectsError } from '../common/index.mjs';
 import assert from 'assert';
 import fixtures from '../common/fixtures.js';
 
-const entry = fixtures.path('es-modules/invalid.cjs');
+const entry = fixtures.path('/es-modules/invalid.js');
 
 import(entry)
 .then(assert.fail, expectsError({
