@@ -10,7 +10,7 @@ import(entry)
 .then(assert.fail, expectsError({
     message: `Unexpected string`,
     stack: `
-Note: To load an ES module set "type": "module" in the package.json or use the .mjs extension.
+Note: To load an ES module using --experimental-modules set "type": "module" in the package.json or use the .mjs extension.
 
 ${entry}:1
 import "invalid";
