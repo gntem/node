@@ -22,14 +22,8 @@ function makeNonEmptyDirectory() {
 {
   const dir = makeNonEmptyDirectory();
 
-  // Recursive removal should succeed.
+  // Recursive chown should succeed.
   fs.chownSync(dir, 1, 1, { recursive: true });
-
-  // No error should occur if recursive and the directory does not exist.
-  fs.chownSync(dir, 1, 1, { recursive: true });
-
-  // Attempted removal should fail now because the directory is gone.
-  common.expectsError(() => fs.chownSync(dir), { syscall: 'chown' });
 }
 
 // Test input validation.
@@ -49,9 +43,9 @@ function makeNonEmptyDirectory() {
     recursive: false
   });
 
-  [null, 'foo', 5, NaN].forEach((bad) => {
+  [null, 'foo', 5, NaN].forEach((badArg) => {
     common.expectsError(() => {
-      validateChownOptions(bad);
+      validateChownOptions(badArg);
     }, {
       code: 'ERR_INVALID_ARG_TYPE',
       type: TypeError,
@@ -59,9 +53,9 @@ function makeNonEmptyDirectory() {
     });
   });
 
-  [undefined, null, 'foo', Infinity, function() {}].forEach((bad) => {
+  [undefined, null, 'foo', Infinity, function() {}].forEach((badValue) => {
     common.expectsError(() => {
-      validateChownOptions({ recursive: bad });
+      validateChownOptions({ recursive: badValue });
     }, {
       code: 'ERR_INVALID_ARG_TYPE',
       type: TypeError,
