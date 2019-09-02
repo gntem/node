@@ -6,21 +6,38 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const { validateChownOptions } = require('internal/fs/utils');
-let count = 0;
 
 tmpdir.refresh();
 
-function makeNonEmptyDirectory() {
-  const dirname = `chown-recursive-${count}`;
-  fs.mkdirSync(path.join(dirname, 'foo', 'bar', 'baz'), { recursive: true });
-  fs.writeFileSync(path.join(dirname, 'text.txt'), 'hello', 'utf8');
-  count++;
-  return dirname;
+/*
+foo
+|_ bar
+|    |_ file1.test
+|_ baz
+|    |_ file2.test
+|_ bax
+     |_ foo
+          |_ file3.test
+*/
+function makeDirectories() {
+  const dirname = 'chown-recursive';
+
+  const foobarPath = path.join(dirname, 'foo', 'bar');
+  fs.mkdirSync(foobarPath, { recursive: true });
+  fs.writeFileSync(path.join(foobarPath, 'file1.test', 'file1'));
+
+  const foobazPath = path.join(dirname, 'foo', 'baz');
+  fs.mkdirSync(foobazPath, { recursive: true });
+  fs.writeFileSync(path.join(foobazPath, 'file2.test', 'file1'));
+
+  const foobaxPath = path.join(dirname, 'foo', 'bax', 'foo');
+  fs.mkdirSync(foobaxPath, { recursive: true });
+  fs.writeFileSync(path.join(foobaxPath, 'file3.test', 'file3'));
 }
 
 // Test the synchronous version.
 {
-  const dir = makeNonEmptyDirectory();
+  const dir = makeDirectories();
 
   // Recursive chown should succeed.
   fs.chownSync(dir, 1, 1, { recursive: true });
