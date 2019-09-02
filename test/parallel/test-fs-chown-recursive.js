@@ -9,16 +9,17 @@ const { validateChownOptions } = require('internal/fs/utils');
 
 tmpdir.refresh();
 
-/*
-foo
-|_ bar
-|    |_ file1.test
-|_ baz
-|    |_ file2.test
-|_ bax
-     |_ foo
-          |_ file3.test
-*/
+const filePaths = [
+  'foo/bar/file1.test',
+  'foo/bar',
+  'foo/baz/file2.test',
+  'foo/baz',
+  'foo/bax/file3.test',
+  'foo/bax',
+  'foo/file4.test',
+  'foo'
+];
+
 function makeDirectories() {
   const dirname = 'chown-recursive';
 
@@ -35,13 +36,6 @@ function makeDirectories() {
   fs.writeFileSync(path.join(foobaxPath, 'file3.test', 'file3'));
 }
 
-// Test the synchronous version.
-{
-  const dir = makeDirectories();
-
-  // Recursive chown should succeed.
-  fs.chownSync(dir, 1, 1, { recursive: true });
-}
 
 // Test input validation.
 {
@@ -79,4 +73,33 @@ function makeDirectories() {
       message: /^The "recursive" argument must be of type boolean\./
     });
   });
+}
+
+// Test the synchronous version.
+{
+  const dir = makeDirectories();
+
+  // Recursive chown should succeed.
+  fs.chownSync(dir, 1, 1, { recursive: true });
+
+  filePaths.forEach((pathToCheck) => {
+    const stat = fs.lstatSync(pathToCheck);
+    assert.ok(stat.uid === 1, `uid for ${pathToCheck} should equal 1`);
+    assert.ok(stat.gid === 1, `gid for ${pathToCheck} should equal 1`);
+  });
+
+  fs.rmdirSync('foo');
+
+}
+
+// test async version.
+{
+  makeDirectories();
+  fs.chown(tmpdir.path, 1, 1, { recursive: true }, common.mustCall(() => {
+    filePaths.forEach((pathToCheck) => {
+      const stat = fs.lstatSync(pathToCheck);
+      assert.ok(stat.uid === 1, `uid for ${pathToCheck} should equal 1`);
+      assert.ok(stat.gid === 1, `gid for ${pathToCheck} should equal 1`);
+    });
+  }, 1));
 }
