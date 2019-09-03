@@ -25,15 +25,17 @@ function makeDirectories() {
 
   const foobarPath = path.join(dirname, 'foo', 'bar');
   fs.mkdirSync(foobarPath, { recursive: true });
-  fs.writeFileSync(path.join(foobarPath, 'file1.test', 'file1'));
+  fs.writeFileSync(path.join(foobarPath, 'file1.test'), 'file1');
 
   const foobazPath = path.join(dirname, 'foo', 'baz');
   fs.mkdirSync(foobazPath, { recursive: true });
-  fs.writeFileSync(path.join(foobazPath, 'file2.test', 'file1'));
+  fs.writeFileSync(path.join(foobazPath, 'file2.test'), 'file1');
 
   const foobaxPath = path.join(dirname, 'foo', 'bax', 'foo');
   fs.mkdirSync(foobaxPath, { recursive: true });
-  fs.writeFileSync(path.join(foobaxPath, 'file3.test', 'file3'));
+  fs.writeFileSync(path.join(foobaxPath, 'file3.test'), 'file3');
+
+  return dirname;
 }
 
 
