@@ -9,33 +9,26 @@ const { validateChownOptions } = require('internal/fs/utils');
 
 tmpdir.refresh();
 
-const filePaths = [
+const dirname = 'chown-recursive';
+
+const paths = [
   'foo/bar/file1.test',
   'foo/bar',
-  'foo/baz/file2.test',
-  'foo/baz',
-  'foo/bax/file3.test',
-  'foo/bax',
-  'foo/file4.test',
+  'foo/file2.test',
   'foo'
 ];
 
+const expectUID = 1;
+const expectGID = 1;
+
+const mainPath = path.join(tmpdir.path, dirname);
+const fooPath = path.join(mainPath, 'foo');
+
 function makeDirectories() {
-  const dirname = 'chown-recursive';
-
-  const foobarPath = path.join(dirname, 'foo', 'bar');
-  fs.mkdirSync(foobarPath, { recursive: true });
-  fs.writeFileSync(path.join(foobarPath, 'file1.test'), 'file1');
-
-  const foobazPath = path.join(dirname, 'foo', 'baz');
-  fs.mkdirSync(foobazPath, { recursive: true });
-  fs.writeFileSync(path.join(foobazPath, 'file2.test'), 'file1');
-
-  const foobaxPath = path.join(dirname, 'foo', 'bax', 'foo');
-  fs.mkdirSync(foobaxPath, { recursive: true });
-  fs.writeFileSync(path.join(foobaxPath, 'file3.test'), 'file3');
-
-  return dirname;
+  fs.mkdirSync(fooPath, { recursive: true });
+  fs.mkdirSync(path.join(fooPath, 'bar'));
+  fs.writeFileSync(path.join(fooPath, 'bar', 'file1.test'), 'file1');
+  fs.writeFileSync(path.join(fooPath, 'file2.test'), 'file2');
 }
 
 
@@ -79,29 +72,29 @@ function makeDirectories() {
 
 // Test the synchronous version.
 {
-  const dir = makeDirectories();
+  makeDirectories();
 
   // Recursive chown should succeed.
-  fs.chownSync(dir, 1, 1, { recursive: true });
+  fs.chownSync(fooPath, expectUID, expectGID, { recursive: true });
 
-  filePaths.forEach((pathToCheck) => {
-    const stat = fs.lstatSync(pathToCheck);
-    assert.ok(stat.uid === 1, `uid for ${pathToCheck} should equal 1`);
-    assert.ok(stat.gid === 1, `gid for ${pathToCheck} should equal 1`);
+  paths.forEach((p) => {
+    const stat = fs.lstatSync(path.join(fooPath, p));
+    assert.ok(stat.uid === expectUID,
+              `uid for ${p} should equal ${expectUID}`);
+    assert.ok(stat.gid === expectGID,
+              `gid for ${p} should equal ${expectGID}`);
   });
-
-  fs.rmdirSync('foo');
-
 }
-
+/*
 // test async version.
 {
   makeDirectories();
-  fs.chown(tmpdir.path, 1, 1, { recursive: true }, common.mustCall(() => {
+  fs.chown(tmpdir.path, expectUID, expectGID, { recursive: true }, common.mustCall(() => {
     filePaths.forEach((pathToCheck) => {
       const stat = fs.lstatSync(pathToCheck);
-      assert.ok(stat.uid === 1, `uid for ${pathToCheck} should equal 1`);
-      assert.ok(stat.gid === 1, `gid for ${pathToCheck} should equal 1`);
+      assert.ok(stat.uid === expectUID, `uid for ${pathToCheck} should equal ${expectUID}`);
+      assert.ok(stat.gid === expectGID, `gid for ${pathToCheck} should equal ${expectGID}`);
     });
   }, 1));
 }
+*/
