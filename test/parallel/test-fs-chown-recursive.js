@@ -12,9 +12,9 @@ tmpdir.refresh();
 const dirname = 'chown-recursive';
 
 const paths = [
-  'foo/bar/file1.test',
-  'foo/bar',
-  'foo/file2.test',
+  'bar/file1.test',
+  'bar',
+  'file2.test',
   'foo'
 ];
 
@@ -79,10 +79,10 @@ function makeDirectories() {
 
   paths.forEach((p) => {
     const stat = fs.lstatSync(path.join(fooPath, p));
-    assert.ok(stat.uid === expectUID,
-              `uid for ${p} should equal ${expectUID}`);
-    assert.ok(stat.gid === expectGID,
-              `gid for ${p} should equal ${expectGID}`);
+    assert.strictEqual(stat.uid, expectUID,
+                       `uid for ${p} should equal ${expectUID}`);
+    assert.strictEqual(stat.gid, expectGID,
+                       `gid for ${p} should equal ${expectGID}`);
   });
 }
 /*
