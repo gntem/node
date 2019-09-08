@@ -7,28 +7,37 @@ const fs = require('fs');
 const path = require('path');
 const { validateChownOptions } = require('internal/fs/utils');
 
-tmpdir.refresh();
-
 const dirname = 'chown-recursive';
+
+/**
+ * Temporary dir structure
+ *
+ * .tmp.0
+ *    └── chown-recursive
+ *        └── foo
+ *            ├── bar
+ *            │   └── file1.test
+ *            └── file2.test
+ */
 
 const paths = [
   'bar/file1.test',
   'bar',
   'file2.test',
-  'foo'
+  '.' // refers to foo
 ];
 
 const expectUID = 1;
 const expectGID = 1;
 
 const mainPath = path.join(tmpdir.path, dirname);
-const fooPath = path.join(mainPath, 'foo');
+const fooPath = path.resolve(mainPath, 'foo');
 
 function makeDirectories() {
   fs.mkdirSync(fooPath, { recursive: true });
-  fs.mkdirSync(path.join(fooPath, 'bar'));
-  fs.writeFileSync(path.join(fooPath, 'bar', 'file1.test'), 'file1');
-  fs.writeFileSync(path.join(fooPath, 'file2.test'), 'file2');
+  fs.mkdirSync(path.resolve(fooPath, 'bar'));
+  fs.writeFileSync(path.resolve(fooPath, 'bar', 'file1.test'), 'file1');
+  fs.writeFileSync(path.resolve(fooPath, 'file2.test'), 'file2');
 }
 
 
@@ -72,17 +81,21 @@ function makeDirectories() {
 
 // Test the synchronous version.
 {
+
   makeDirectories();
 
   // Recursive chown should succeed.
   fs.chownSync(fooPath, expectUID, expectGID, { recursive: true });
 
   paths.forEach((p) => {
-    const stat = fs.lstatSync(path.join(fooPath, p));
+    const pathToEvaluate = path.join(fooPath, p);
+    const stat = fs.lstatSync(pathToEvaluate);
     assert.strictEqual(stat.uid, expectUID,
-                       `uid for ${p} should equal ${expectUID}`);
+                       `uid for ${p} should equal ${expectUID} \
+                       for path ${pathToEvaluate}`);
     assert.strictEqual(stat.gid, expectGID,
-                       `gid for ${p} should equal ${expectGID}`);
+                       `gid for ${p} should equal ${expectGID} \
+                       for path ${pathToEvaluate}`);
   });
 }
 /*
