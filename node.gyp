@@ -125,6 +125,7 @@
       'lib/internal/fs/promises.js',
       'lib/internal/fs/read_file_context.js',
       'lib/internal/fs/rimraf.js',
+      'lib/internal/fs/chown_recursive.js',
       'lib/internal/fs/streams.js',
       'lib/internal/fs/sync_write_stream.js',
       'lib/internal/fs/utils.js',

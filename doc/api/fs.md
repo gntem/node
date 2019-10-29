@@ -1464,7 +1464,7 @@ this API: [`fs.chmod()`][].
 
 See also: chmod(2).
 
-## fs.chown(path, uid, gid, callback)
+## fs.chown(path, uid, gid[, options], callback)
 <!-- YAML
 added: v0.1.97
 changes:
@@ -1482,9 +1482,15 @@ changes:
                  it will emit a deprecation warning with id DEP0013.
 -->
 
+> Stability: 1 - Recursive chown is experimental.
+
 * `path` {string|Buffer|URL}
 * `uid` {integer}
 * `gid` {integer}
+* `options` {object}
+  * `recursive` {boolean} If `true`, perform a recursive directory chown. In
+  recursive mode, errors are not reported if `path` does not exist, and
+  operations are retried on failure. **Default:** `false`.
 * `callback` {Function}
   * `err` {Error}
 
@@ -1493,7 +1499,7 @@ possible exception are given to the completion callback.
 
 See also: chown(2).
 
-## fs.chownSync(path, uid, gid)
+## fs.chownSync(path, uid, gid[, options])
 <!-- YAML
 added: v0.1.97
 changes:
@@ -1503,9 +1509,15 @@ changes:
                  protocol. Support is currently still *experimental*.
 -->
 
+> Stability: 1 - Recursive removal is experimental.
+
 * `path` {string|Buffer|URL}
 * `uid` {integer}
 * `gid` {integer}
+* `options` {Object}
+  * `recursive` {boolean} If `true`, perform a recursive directory chown. In
+  recursive mode, errors are not reported if `path` does not exist, and
+  operations are retried on failure. **Default:** `false`.
 
 Synchronously changes owner and group of a file. Returns `undefined`.
 This is the synchronous version of [`fs.chown()`][].
